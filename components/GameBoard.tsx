@@ -6,19 +6,21 @@ interface GameBoardProps {
   window: WindowConfig;
   onCellClick: (row: number, col: number) => void;
   isGameOver: boolean;
+  isAITurn?: boolean; // AIのターンかどうか
 }
 
 export default function GameBoard({ 
   board, 
   window, 
   onCellClick,
-  isGameOver 
+  isGameOver,
+  isAITurn = false,
 }: GameBoardProps) {
   const getCellClassName = (row: number, col: number): string => {
     const cell = board[row][col];
     const inWindow = isCellInWindow(row, col, window);
     const isEmpty = cell === null;
-    const isClickable = inWindow && isEmpty && !isGameOver;
+    const isClickable = inWindow && isEmpty && !isGameOver && !isAITurn;
     
     let classes = 'aspect-square flex items-center justify-center border transition-all duration-200 ';
     
@@ -67,7 +69,8 @@ export default function GameBoard({
                 if (
                   isCellInWindow(rowIndex, colIndex, window) &&
                   cell === null &&
-                  !isGameOver
+                  !isGameOver &&
+                  !isAITurn
                 ) {
                   onCellClick(rowIndex, colIndex);
                 }

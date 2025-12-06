@@ -5,13 +5,14 @@ import GameBoard from '@/components/GameBoard';
 import InfoPanel from '@/components/InfoPanel';
 import WinnerModal from '@/components/WinnerModal';
 import RulesModal from '@/components/RulesModal';
-import { GameState, Player } from '@/lib/types';
+import { GameState, Player, Difficulty } from '@/lib/types';
 import {
   createEmptyBoard,
   generateValidWindow,
   checkWinner,
   hasEmptySpaceInWindow,
 } from '@/lib/gameLogic';
+import { getAIMove } from '@/lib/aiLogic';
 
 export default function Home() {
   const [gameState, setGameState] = useState<GameState>(() => {
@@ -24,6 +25,8 @@ export default function Home() {
       status: 'playing',
       message: 'ゲームスタート！プレイヤー1の番です',
       turnInRound: 1,
+      gameMode: 'pvc', // Player vs Computer
+      difficulty: 'easy', // デフォルトはEASY
     };
   });
 
@@ -33,6 +36,10 @@ export default function Home() {
   // セルクリック時の処理
   const handleCellClick = (row: number, col: number) => {
     if (gameState.status !== 'playing') return;
+    
+    // Player vs Computerモードで、Player2の番の時は人間のクリックを無視
+    // ただしAIからの呼び出しは許可する必要がある
+    // → この条件を削除してウィンドウ内チェックのみにする
 
     // 盤面を更新
     const newBoard = gameState.board.map((r, i) =>
@@ -67,6 +74,29 @@ export default function Home() {
       startNewRound(newBoard);
     }
   };
+
+  // AI自動プレイ
+  useEffect(() => {
+    // Player2(AI)の番で、ゲーム中の場合
+    if (
+      gameState.currentPlayer === 'player2' &&
+      gameState.status === 'playing' &&
+      gameState.gameMode === 'pvc'
+    ) {
+      // 少し遅延してからAIが手を打つ（考えている感を出す）
+      const timer = setTimeout(() => {
+        const aiMove = getAIMove(
+          gameState.board,
+          gameState.window,
+          'player2',
+          gameState.difficulty
+        );
+        handleCellClick(aiMove.row, aiMove.col);
+      }, 800); // 0.8秒待つ
+
+      return () => clearTimeout(timer);
+    }
+  }, [gameState]);
 
   // 新しいラウンドを開始
   const startNewRound = (board: typeof gameState.board) => {
@@ -130,8 +160,18 @@ export default function Home() {
       status: 'playing',
       message: 'ゲームスタート！プレイヤー1の番です',
       turnInRound: 1,
+      gameMode: 'pvc',
+      difficulty: gameState.difficulty, // 難易度は維持
     });
     setShowWinnerModal(false);
+  };
+
+  // 難易度変更
+  const handleDifficultyChange = (difficulty: Difficulty) => {
+    setGameState({
+      ...gameState,
+      difficulty,
+    });
   };
 
   return (
@@ -147,6 +187,8 @@ export default function Home() {
               status={gameState.status}
               message={gameState.message}
               turnInRound={gameState.turnInRound}
+              difficulty={gameState.difficulty}
+              onDifficultyChange={handleDifficultyChange}
             />
             
             {/* デスクトップ用リセットボタン */}
@@ -168,7 +210,9 @@ export default function Home() {
                 status={gameState.status}
                 message={gameState.message}
                 turnInRound={gameState.turnInRound}
+                difficulty={gameState.difficulty}
                 onShowRules={() => setShowRulesModal(true)}
+                onDifficultyChange={handleDifficultyChange}
               />
             </div>
             
@@ -177,6 +221,7 @@ export default function Home() {
               window={gameState.window}
               onCellClick={handleCellClick}
               isGameOver={gameState.status !== 'playing'}
+              isAITurn={gameState.currentPlayer === 'player2' && gameState.gameMode === 'pvc'}
             />
 
             {/* 盤面の下にリセットボタン (スマホのみ) */}

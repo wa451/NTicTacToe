@@ -3,6 +3,8 @@
 export type CellState = null | 'player1' | 'player2';
 export type Player = 'player1' | 'player2';
 export type GameStatus = 'playing' | 'player1-won' | 'player2-won';
+export type GameMode = 'pvp' | 'pvc'; // Player vs Player or Player vs Computer
+export type Difficulty = 'easy' | 'normal';
 
 export interface WindowConfig {
   x: number; // 目標の並び数 (3-10)
@@ -17,4 +19,6 @@ export interface GameState {
   status: GameStatus; // ゲームの状態
   message: string; // システムメッセージ
   turnInRound: 1 | 2; // ラウンド内のターン (1 or 2)
+  gameMode: GameMode; // ゲームモード
+  difficulty: Difficulty; // AI難易度
 }

@@ -1,4 +1,4 @@
-import { Player, GameStatus, WindowConfig } from '@/lib/types';
+import { Player, GameStatus, WindowConfig, Difficulty } from '@/lib/types';
 
 interface InfoPanelProps {
   currentPlayer: Player;
@@ -6,7 +6,9 @@ interface InfoPanelProps {
   status: GameStatus;
   message: string;
   turnInRound: 1 | 2;
+  difficulty: Difficulty;
   onShowRules?: () => void;
+  onDifficultyChange?: (difficulty: Difficulty) => void;
 }
 
 export default function InfoPanel({
@@ -15,7 +17,9 @@ export default function InfoPanel({
   status,
   message,
   turnInRound,
+  difficulty,
   onShowRules,
+  onDifficultyChange,
 }: InfoPanelProps) {
   const getPlayerName = (player: Player): string => {
     return player === 'player1' ? 'プレイヤー1 (黒)' : 'プレイヤー2 (白)';
@@ -59,6 +63,40 @@ export default function InfoPanel({
             </div>
             <div className="text-xs text-gray-500">
               ターン: {turnInRound}/2
+            </div>
+          </div>
+        )}
+
+        {/* AI難易度選択 */}
+        {onDifficultyChange && (
+          <div className="bg-white rounded-lg shadow-md p-4 mb-3">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3 text-center">
+              🤖 AI難易度
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => onDifficultyChange('easy')}
+                className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                  difficulty === 'easy'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                EASY
+              </button>
+              <button
+                onClick={() => onDifficultyChange('normal')}
+                className={`px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                  difficulty === 'normal'
+                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                NORMAL
+              </button>
+            </div>
+            <div className="mt-2 text-xs text-gray-600 text-center">
+              {difficulty === 'easy' ? '勝ち/負け防止' : '評価関数ベース'}
             </div>
           </div>
         )}
@@ -146,6 +184,40 @@ export default function InfoPanel({
             </div>
           )}
         </div>
+
+        {/* AI難易度選択 (スマホ) */}
+        {onDifficultyChange && (
+          <div className="bg-white rounded-lg shadow-md p-3 mb-3">
+            <h3 className="text-xs font-semibold text-gray-800 mb-2 text-center">
+              🤖 AI難易度
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => onDifficultyChange('easy')}
+                className={`px-3 py-2 rounded-lg font-semibold text-xs transition-all duration-200 ${
+                  difficulty === 'easy'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                EASY
+              </button>
+              <button
+                onClick={() => onDifficultyChange('normal')}
+                className={`px-3 py-2 rounded-lg font-semibold text-xs transition-all duration-200 ${
+                  difficulty === 'normal'
+                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                NORMAL
+              </button>
+            </div>
+            <div className="mt-2 text-xs text-gray-500 text-center">
+              {difficulty === 'easy' ? '勝ち/負け防止' : '評価関数ベース'}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
