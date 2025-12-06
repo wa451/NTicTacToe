@@ -26,7 +26,7 @@ export default function Home() {
       message: 'ゲームスタート！プレイヤー1の番です',
       turnInRound: 1,
       gameMode: 'pvc', // Player vs Computer
-      difficulty: 'easy', // デフォルトはEASY
+      difficulty: 'normal', // デフォルトはNORMAL
     };
   });
 
